@@ -62,7 +62,8 @@ Clone or download [Steamodded](https://github.com/Steamodded/smods) into your Mo
 
 ### 3. This mod
 
-Clone this repository:
+Download the latest release, extract the `balatro-sandbox` folder, and place it in the
+`Mods` folder. Alternatively, clone this repository:
 
 ```bash
 git clone https://github.com/wuhan6910/balatro-sandbox-zh.git
