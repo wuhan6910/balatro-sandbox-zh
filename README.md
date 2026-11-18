@@ -9,7 +9,7 @@ with any **edition** (Foil / Holographic / Polychrome / Negative), through an in
 built entirely from Balatro's own UI, card art, sounds, and animations — it looks and feels
 like part of the game.
 
-- Six compact buttons sit quietly on the right edge during a run.
+- Four compact buttons sit quietly on the right edge during a run.
 - Click it → a collection-style browser opens with every Joker in the game (paginated,
   locked/undiscovered included), plus tabs for Tarot, Planet, and Spectral cards.
 - Pick a modifier, click a card → it materializes into your Joker row / consumable slots
@@ -74,30 +74,29 @@ badge on the main menu, and the Sandbox button in the HUD once you start a run.
 
 ## Usage
 
-Six small buttons sit on the right edge of the screen during a run:
+Four small buttons sit on the right edge of the screen during a run:
 
-**`牌` — the playing-card creator.** Choose a rank, suit, enhancement, edition and
-seal, then add the card to your hand or the draw pile.
+**`牌` — cards, batch editing and deletion.** The screen has three tabs:
+
+- `新建单张`: choose a rank, suit, enhancement, edition and seal, then add the card to
+  your hand or the draw pile.
+- `批量改造`: select any number of cards from the whole deck and apply an enhancement,
+  edition, or seal to all of them at once. Each picker has a `保持不变` option.
+- `删除牌`: the whole run deck is shown on one screen (draw pile, hand, discard and play
+  areas). Click cards to select or deselect them, then press `删除选中` to permanently
+  remove every selected card at once. Switch to `小丑牌` to remove Jokers from play,
+  even when they carry an Eternal sticker.
 
 **`数值` — run tuning.** Pick any poker hand and adjust its level, change the
 hands and discards available in the current blind, change the base hands/discards
 used by later blinds, edit the hand-size limit, and edit your money. Changes apply
 immediately.
 
-**`删牌` — the deck editor.** The whole run deck is shown on one screen (draw
-pile, hand, discard and play areas). Click cards to select or deselect them, then press
-`删除选中` to permanently remove every selected card at once.
-
-The same screen has a `小丑牌` tab that lists the Jokers currently in play. Select any
-number of them and press `删除选中` to remove them directly; Eternal, Perishable, and
-Rental stickers cannot block the deletion.
-
 **`全部` — the Browser.** A full collection-style screen of every card in the set,
 five per row, with edition + sticker pickers. **Click a card** to add it, spawn as
-many as you like, then back out.
-
-**`标签` — the tag grid.** Every tag is shown with the game's own sprite. Hover one to
-read its effect, click to add it to the run. Tags stack like normal skipped-blind tags.
+many as you like, then back out. The `标签` tab in this same browser shows every tag as
+its native icon; hover an icon to read its effect, then click to add it. Click again to
+stack it like a skipped-blind tag.
 
 **`复制` — duplicate owned cards.** Lists your Jokers or consumables on one screen.
 Select any number and press `复制选中`; copies keep edition, stickers and current values,
@@ -114,9 +113,9 @@ and the slot limit expands automatically when needed.
 | Hands and discards | edit the current blind or the base value for later blinds in `数值` |
 | Hand-size limit | use the -10 / -1 / +1 / +10 buttons next to `手牌上限` in `数值` |
 | Money | use the -100 / -10 / -1 / +1 / +10 / +100 / 归零 buttons in `数值` |
-| Delete deck cards | open `删牌`, stay on `牌库`, select several cards, then press `删除选中` |
-| Delete Jokers | open `删牌`, switch to `小丑牌`, select several Jokers, then press `删除选中` |
-| Add a tag | open `标签`, hover to preview, click to add |
+| Delete deck cards | open `牌`, switch to `删除牌`, stay on `牌库`, select several cards, then press `删除选中` |
+| Delete Jokers | open `牌`, switch to `删除牌`, choose `小丑牌`, select several Jokers, then press `删除选中` |
+| Add a tag | open `全部`, switch to the `标签` tab, hover for its effect, click the icon to add it |
 | Duplicate Jokers / consumables | open `复制`, pick the tab, select cards, press `复制选中` |
 | Reorder / manage | drag cards in your Joker row as normal; sell to remove |
 
