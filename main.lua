@@ -27,6 +27,7 @@ local SBX = {
   delete_selected = {},     -- original card refs currently selected for deletion
   delete_selected_count = 0,
   delete_scale = 0.4,
+  delete_mode = 'deck',     -- 'deck' or 'jokers'
 }
 
 SBX.SETS = { 'Joker', 'Tarot', 'Planet', 'Spectral', 'Voucher' }
@@ -52,6 +53,7 @@ SBX.STICKERS = {
 }
 
 local BROWSER_ROWS, BROWSER_COLS = 2, 5
+local NEGATIVE_EDITION_INDEX = 5
 
 local function log(msg) print('[Sandbox] ' .. tostring(msg)) end
 
@@ -160,6 +162,7 @@ local function spawn_center(center)
   end
 
   local edition = SBX.EDITIONS[SBX.edition]
+  if center.set ~= 'Joker' and edition.key ~= 'negative' then edition = SBX.EDITIONS[1] end
   local sticker = SBX.STICKERS[SBX.sticker]
 
   local ok, err = pcall(function()
@@ -400,21 +403,32 @@ local function browser_definition()
 
   local page_options = {}
   for i = 1, pages do page_options[i] = '第 ' .. i .. '/' .. pages .. ' 页' end
-  local edition_options, sticker_options = {}, {}
-  for i, e in ipairs(SBX.EDITIONS) do edition_options[i] = e.label end
-  for i, st in ipairs(SBX.STICKERS) do sticker_options[i] = st.label end
+  local edition_options, sticker_options, edition_index = {}, {}, 1
+  if set == 'Joker' then
+    for i, e in ipairs(SBX.EDITIONS) do edition_options[i] = e.label end
+    for i, st in ipairs(SBX.STICKERS) do sticker_options[i] = st.label end
+    edition_index = SBX.edition
+  elseif set ~= 'Voucher' then
+    edition_options[1] = SBX.EDITIONS[1].label
+    edition_options[2] = SBX.EDITIONS[NEGATIVE_EDITION_INDEX].label
+    edition_index = SBX.edition == NEGATIVE_EDITION_INDEX and 2 or 1
+  end
 
   local contents = {
     { n = G.UIT.R, config = { align = 'cm', padding = 0.02 }, nodes = tab_buttons },
   }
 
   if set ~= 'Voucher' then
-    table.insert(contents, { n = G.UIT.R, config = { align = 'cm', padding = 0.02 }, nodes = {
+    local picker_nodes = {
       create_option_cycle({ options = edition_options, w = 2.2, opt_callback = 'sbx_edition',
-        current_option = SBX.edition, colour = G.C.DARK_EDITION, no_pips = true, scale = 0.58 }),
-      create_option_cycle({ options = sticker_options, w = 2.2, opt_callback = 'sbx_sticker',
-        current_option = SBX.sticker, colour = G.C.ETERNAL or G.C.RED, no_pips = true, scale = 0.58 }),
-    } })
+        current_option = edition_index, colour = G.C.DARK_EDITION, no_pips = true, scale = 0.58 }),
+    }
+    if set == 'Joker' then
+      picker_nodes[#picker_nodes + 1] = create_option_cycle({ options = sticker_options, w = 2.2,
+        opt_callback = 'sbx_sticker', current_option = SBX.sticker,
+        colour = G.C.ETERNAL or G.C.RED, no_pips = true, scale = 0.58 })
+    end
+    table.insert(contents, { n = G.UIT.R, config = { align = 'cm', padding = 0.02 }, nodes = picker_nodes })
   end
 
   table.insert(contents, { n = G.UIT.R, config = { align = 'cm', r = 0.1, colour = G.C.BLACK, emboss = 0.05 }, nodes = deck_tables })
@@ -448,6 +462,9 @@ G.FUNCS.sbx_open_browser = function() open_browser() end
 for _, s in ipairs(SBX.SETS) do
   G.FUNCS['sbx_set_' .. s] = function()
     SBX.set = s; SBX.page = 1
+    if s ~= 'Joker' and s ~= 'Voucher' and SBX.edition ~= NEGATIVE_EDITION_INDEX then
+      SBX.edition = 1
+    end
     open_browser() -- overlay_menu replaces the previous overlay
   end
 end
@@ -460,7 +477,13 @@ G.FUNCS.sbx_page = function(args)
 end
 
 G.FUNCS.sbx_edition = function(args)
-  if args and args.cycle_config then SBX.edition = args.cycle_config.current_option end
+  if not (args and args.cycle_config) then return end
+  local option = args.cycle_config.current_option
+  if SBX.set == 'Joker' then
+    SBX.edition = option
+  else
+    SBX.edition = option == 2 and NEGATIVE_EDITION_INDEX or 1
+  end
 end
 
 G.FUNCS.sbx_sticker = function(args)
@@ -1140,6 +1163,44 @@ local function deck_card_list()
   return list
 end
 
+local function joker_card_list()
+  local list = {}
+  if not (G and G.jokers and G.jokers.cards) then return list end
+  for _, card in ipairs(G.jokers.cards) do
+    if card and not card.removed then list[#list + 1] = card end
+  end
+  return list
+end
+
+local function delete_card_list()
+  if SBX.delete_mode == 'jokers' then return joker_card_list() end
+  return deck_card_list()
+end
+
+local function delete_joker_card(card)
+  if not (G and G.jokers and card) then return false, '当前不在牌局中' end
+  if G.STATES and G.STATE == G.STATES.HAND_PLAYED then
+    return false, '出牌结算中，暂时不能删牌'
+  end
+
+  local found = false
+  for _, v in ipairs(G.jokers.cards) do
+    if v == card then found = true; break end
+  end
+  if not found then return false, '这张小丑牌已不在场上' end
+
+  local name = (card.config and card.config.center and card.config.center.name)
+    or (card.ability and card.ability.name) or '?'
+  -- Card:remove() unregisters the card from G.jokers without running sell logic,
+  -- so eternal/perishable/rental stickers cannot block the deletion.
+  local ok, err = pcall(function() card:remove() end)
+  if not ok then
+    pcall(function() G.jokers:remove_card(card) end)
+    return false, tostring(err)
+  end
+  return true, name
+end
+
 local function fill_delete_areas()
   local areas = SBX.delete_areas or {}
   local cards = SBX.delete_cards or {}
@@ -1190,7 +1251,8 @@ local function clear_delete_selection()
 end
 
 local function delete_definition()
-  local cards = deck_card_list()
+  local jokers = SBX.delete_mode == 'jokers'
+  local cards = delete_card_list()
   SBX.delete_cards = cards
 
   local rows = math.max(1, math.ceil(#cards / DELETE_COLS))
@@ -1213,16 +1275,37 @@ local function delete_definition()
   end
 
   local selection_count = DynaText({
-    string = {{ prefix = '已选 ', ref_table = SBX, ref_value = 'delete_selected_count', suffix = ' 张' }},
+    string = {{ prefix = '已选 ', ref_table = SBX, ref_value = 'delete_selected_count',
+      suffix = jokers and ' 个' or ' 张' }},
     colours = { G.C.WHITE }, shadow = true, scale = 0.45, pop_in = 0, silent = true,
   })
 
+  local empty_note = nil
+  if #cards == 0 then
+    empty_note = { n = G.UIT.R, config = { align = 'cm', padding = 0.02 }, nodes = {
+      { n = G.UIT.T, config = { text = (jokers
+          and '场上没有小丑牌；先到「全部」里添加'
+          or '牌库里没有牌'),
+        scale = 0.32, colour = G.C.UI.TEXT_LIGHT } },
+    } }
+  end
+
   local contents = {
+    { n = G.UIT.R, config = { align = 'cm', padding = 0.02 }, nodes = {
+      UIBox_button({ button = 'sbx_delete_mode_deck', label = { '牌库' },
+        minw = 1.1, maxw = 1.3, minh = 0.48, scale = 0.33,
+        colour = (not jokers) and G.C.RED or G.C.BLUE }),
+      UIBox_button({ button = 'sbx_delete_mode_jokers', label = { '小丑牌' },
+        minw = 1.3, maxw = 1.5, minh = 0.48, scale = 0.33,
+        colour = jokers and G.C.RED or G.C.BLUE }),
+    } },
     { n = G.UIT.R, config = { align = 'cm' }, nodes = {
-      { n = G.UIT.T, config = { text = '当前牌库共 ' .. #cards .. ' 张；点击牌切换选中状态',
+      { n = G.UIT.T, config = { text = (jokers
+          and ('当前小丑牌共 ' .. #cards .. ' 个；点击小丑切换选中状态')
+          or ('当前牌库共 ' .. #cards .. ' 张；点击牌切换选中状态')),
         scale = 0.32, colour = G.C.UI.TEXT_LIGHT } },
     } },
-    { n = G.UIT.R, config = { align = 'cm', r = 0.1, colour = G.C.BLACK, emboss = 0.05 }, nodes = deck_tables },
+    empty_note or { n = G.UIT.R, config = { align = 'cm', r = 0.1, colour = G.C.BLACK, emboss = 0.05 }, nodes = deck_tables },
     { n = G.UIT.R, config = { align = 'cm', padding = 0.03 }, nodes = {
       { n = G.UIT.O, config = { object = selection_count } },
       UIBox_button({ button = 'sbx_delete_commit', label = { '删除选中' },
@@ -1231,7 +1314,9 @@ local function delete_definition()
         minw = 1.6, maxw = 2.0, minh = 0.5, scale = 0.32, colour = G.C.BLUE }),
     } },
     { n = G.UIT.R, config = { align = 'cm', padding = 0.02 }, nodes = {
-      { n = G.UIT.T, config = { text = '整副牌同屏显示；删除会同时移除抽牌堆、手牌、弃牌堆与出牌区中的所选牌',
+      { n = G.UIT.T, config = { text = (jokers
+          and '删除小丑牌不受永恒、易腐、租用贴纸影响；直接从场上移除'
+          or '整副牌同屏显示；删除会同时移除抽牌堆、手牌、弃牌堆与出牌区中的所选牌'),
         scale = 0.29, colour = G.C.UI.TEXT_LIGHT } },
     } },
   }
@@ -1257,7 +1342,7 @@ local function delete_selected_cards()
   end
 
   local targets = {}
-  for _, card in ipairs(deck_card_list()) do
+  for _, card in ipairs(delete_card_list()) do
     if SBX.delete_selected[card] then targets[#targets + 1] = card end
   end
   if #targets == 0 then
@@ -1267,8 +1352,9 @@ local function delete_selected_cards()
   end
 
   local deleted, failed, first_error = 0, 0, nil
+  local jokers = SBX.delete_mode == 'jokers'
   for _, card in ipairs(targets) do
-    local ok, reason = delete_deck_card(card)
+    local ok, reason = jokers and delete_joker_card(card) or delete_deck_card(card)
     if ok then
       deleted = deleted + 1
     else
@@ -1277,10 +1363,11 @@ local function delete_selected_cards()
     end
   end
 
+  local what = jokers and 'jokers' or 'deck cards'
   if failed > 0 then
-    log('deleted ' .. deleted .. ' selected deck cards; ' .. failed .. ' failed: ' .. tostring(first_error))
+    log('deleted ' .. deleted .. ' selected ' .. what .. '; ' .. failed .. ' failed: ' .. tostring(first_error))
   else
-    log('deleted ' .. deleted .. ' selected deck cards')
+    log('deleted ' .. deleted .. ' selected ' .. what)
   end
   pcall(play_sound, deleted > 0 and 'cardSlide2' or 'cancel')
 
@@ -1297,3 +1384,13 @@ end
 G.FUNCS.sbx_open_delete = function() open_delete_browser() end
 G.FUNCS.sbx_delete_commit = function() delete_selected_cards() end
 G.FUNCS.sbx_delete_clear = function() clear_delete_selection() end
+G.FUNCS.sbx_delete_mode_deck = function()
+  if SBX.delete_mode == 'deck' then return end
+  SBX.delete_mode = 'deck'
+  open_delete_browser()
+end
+G.FUNCS.sbx_delete_mode_jokers = function()
+  if SBX.delete_mode == 'jokers' then return end
+  SBX.delete_mode = 'jokers'
+  open_delete_browser()
+end

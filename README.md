@@ -88,6 +88,10 @@ immediately.
 pile, hand, discard and play areas). Click cards to select or deselect them, then press
 `删除选中` to permanently remove every selected card at once.
 
+The same screen has a `小丑牌` tab that lists the Jokers currently in play. Select any
+number of them and press `删除选中` to remove them directly; Eternal, Perishable, and
+Rental stickers cannot block the deletion.
+
 **`全部` — the Browser.** A full collection-style screen of every card in the set,
 five per row, with edition + sticker pickers. **Click a card** to add it, spawn as
 many as you like, then back out.
@@ -95,14 +99,16 @@ many as you like, then back out.
 | Action | How |
 |---|---|
 | Switch card type | tab buttons in the browser |
-| Choose a modifier | edition cycle: None / Foil / Holo / Poly / Negative |
-| Stickers | browser only: Eternal / Perishable / Rental |
+| Choose a Joker edition | None / Foil / Holo / Poly / Negative |
+| Choose a consumable edition | Tarot / Planet / Spectral: None / Negative only, matching the base game |
+| Stickers | Jokers only: Eternal / Perishable / Rental |
 | Spawn | click a card in the browser |
 | Poker-hand level | open `数值`, choose the hand, then use -10 / -1 / +1 / +10 |
 | Hands and discards | edit the current blind or the base value for later blinds in `数值` |
 | Hand-size limit | use the -10 / -1 / +1 / +10 buttons next to `手牌上限` in `数值` |
 | Money | use the -100 / -10 / -1 / +1 / +10 / +100 / 归零 buttons in `数值` |
-| Delete deck cards | open `删牌`, select several cards, then press `删除选中` |
+| Delete deck cards | open `删牌`, stay on `牌库`, select several cards, then press `删除选中` |
+| Delete Jokers | open `删牌`, switch to `小丑牌`, select several Jokers, then press `删除选中` |
 | Reorder / manage | drag cards in your Joker row as normal; sell to remove |
 
 Everything spawns free and works exactly like the real item (copies, scoring, sell value).
