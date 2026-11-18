@@ -103,7 +103,7 @@ many as you like, then back out.
 | Choose a consumable edition | Tarot / Planet / Spectral: None / Negative only, matching the base game |
 | Stickers | Jokers only: Eternal / Perishable / Rental |
 | Spawn | click a card in the browser |
-| Poker-hand level | open `数值`, choose the hand, then use -10 / -1 / +1 / +10 |
+| Poker-hand level | open `数值`, choose a hand (or `所有牌型` to change every hand at once), then use -10 / -1 / +1 / +10 |
 | Hands and discards | edit the current blind or the base value for later blinds in `数值` |
 | Hand-size limit | use the -10 / -1 / +1 / +10 buttons next to `手牌上限` in `数值` |
 | Money | use the -100 / -10 / -1 / +1 / +10 / +100 / 归零 buttons in `数值` |
