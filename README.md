@@ -9,7 +9,7 @@ with any **edition** (Foil / Holographic / Polychrome / Negative), through an in
 built entirely from Balatro's own UI, card art, sounds, and animations — it looks and feels
 like part of the game.
 
-- Four compact buttons sit quietly on the right edge during a run.
+- Six compact buttons sit quietly on the right edge during a run.
 - Click it → a collection-style browser opens with every Joker in the game (paginated,
   locked/undiscovered included), plus tabs for Tarot, Planet, and Spectral cards.
 - Pick a modifier, click a card → it materializes into your Joker row / consumable slots
@@ -74,7 +74,7 @@ badge on the main menu, and the Sandbox button in the HUD once you start a run.
 
 ## Usage
 
-Four small buttons sit on the right edge of the screen during a run:
+Six small buttons sit on the right edge of the screen during a run:
 
 **`牌` — the playing-card creator.** Choose a rank, suit, enhancement, edition and
 seal, then add the card to your hand or the draw pile.
@@ -96,6 +96,13 @@ Rental stickers cannot block the deletion.
 five per row, with edition + sticker pickers. **Click a card** to add it, spawn as
 many as you like, then back out.
 
+**`标签` — the tag grid.** Every tag is shown with the game's own sprite. Hover one to
+read its effect, click to add it to the run. Tags stack like normal skipped-blind tags.
+
+**`复制` — duplicate owned cards.** Lists your Jokers or consumables on one screen.
+Select any number and press `复制选中`; copies keep edition, stickers and current values,
+and the slot limit expands automatically when needed.
+
 | Action | How |
 |---|---|
 | Switch card type | tab buttons in the browser |
@@ -109,6 +116,8 @@ many as you like, then back out.
 | Money | use the -100 / -10 / -1 / +1 / +10 / +100 / 归零 buttons in `数值` |
 | Delete deck cards | open `删牌`, stay on `牌库`, select several cards, then press `删除选中` |
 | Delete Jokers | open `删牌`, switch to `小丑牌`, select several Jokers, then press `删除选中` |
+| Add a tag | open `标签`, hover to preview, click to add |
+| Duplicate Jokers / consumables | open `复制`, pick the tab, select cards, press `复制选中` |
 | Reorder / manage | drag cards in your Joker row as normal; sell to remove |
 
 Everything spawns free and works exactly like the real item (copies, scoring, sell value).
